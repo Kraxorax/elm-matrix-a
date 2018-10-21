@@ -1,0 +1,98 @@
+module NeighboursTest exposing (neighboursTestSuite)
+
+import Array as A exposing (..)
+import Expect exposing (Expectation)
+import Fuzz exposing (Fuzzer, int, intRange, list, string)
+import Matrix as M exposing (..)
+import Neighbours as N exposing (..)
+import Test exposing (..)
+
+
+rand1to10M : Fuzzer Int
+rand1to10M =
+    intRange 1 1000
+
+
+testMatrix : Matrix ( Int, Int )
+testMatrix =
+    M.generate 4 4 (\x y -> ( x, y ))
+
+
+haveSameElements : Array ( Int, Int ) -> Array ( Int, Int ) -> Bool
+haveSameElements a b =
+    A.foldr
+        (\ea x -> x && A.foldr (\eb y -> y || eb == ea) False b)
+        True
+        a
+
+
+planeNeighbours_00 =
+    [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ) ] |> A.fromList
+
+
+planeNeighbours_33 =
+    [ ( 2, 2 ), ( 3, 2 ), ( 2, 3 ) ] |> A.fromList
+
+
+torusNeighbours_00 =
+    [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 3, 0 ), ( 3, 1 ), ( 0, 3 ), ( 1, 3 ), ( 3, 3 ) ] |> A.fromList
+
+
+stripHorizontalNeighbours_00 =
+    [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 3, 0 ), ( 3, 1 ) ] |> A.fromList
+
+
+stripVerticalNeighbours_00 =
+    [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 0, 3 ), ( 1, 3 ) ] |> A.fromList
+
+
+neighboursTestSuite : Test
+neighboursTestSuite =
+    only <|
+        describe "Matrix Neighbours"
+            [ test
+                "Plane 0 0"
+                (\_ ->
+                    let
+                        n =
+                            N.neighbours N.Plane 0 0 testMatrix
+                    in
+                    Expect.true "P-0-0" (haveSameElements n planeNeighbours_00)
+                )
+            , test
+                "Plane 3 3"
+                (\_ ->
+                    let
+                        n =
+                            N.neighbours N.Plane 3 3 testMatrix
+                    in
+                    Expect.true "P-3-3" (haveSameElements n planeNeighbours_33)
+                )
+            , test
+                "Torus 0 0"
+                (\_ ->
+                    let
+                        n =
+                            N.neighbours N.Torus 0 0 testMatrix
+                    in
+                    Expect.true "0-0" (haveSameElements n torusNeighbours_00)
+                )
+            , test
+                "Horizontal strip 0 0"
+                (\_ ->
+                    let
+                        n =
+                            N.neighbours N.StripHorizontal 0 0 testMatrix
+                    in
+                    Expect.true "HS-0-0" (haveSameElements n stripHorizontalNeighbours_00)
+                )
+            , test
+                "Vertical strip 0 0"
+                (\_ ->
+                    let
+                        n =
+                            N.neighbours N.StripVertical 0 0 testMatrix
+                    in
+                    Expect.true "HS-0-0" (haveSameElements n stripVerticalNeighbours_00)
+                )
+            ]

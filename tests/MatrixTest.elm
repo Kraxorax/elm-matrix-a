@@ -1,5 +1,6 @@
-module Example exposing (numberOfDigits, suite)
+module MatrixTest exposing (numberOfDigits, suite)
 
+import Array as A exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, intRange, list, string)
 import Matrix as M exposing (..)
@@ -99,7 +100,7 @@ suite =
                                 x
 
                             Err msg ->
-                                M.empty
+                                emptyMatrix
                 in
                 Expect.equal (w * 2) (width mc)
             )
@@ -134,11 +135,18 @@ suite =
                                 x
 
                             Err msg ->
-                                M.empty
+                                emptyMatrix
                 in
                 Expect.equal (h * 2) (height mc)
             )
         ]
+
+
+{-| Empty Matrix
+-}
+emptyMatrix : Matrix a
+emptyMatrix =
+    A.empty
 
 
 numberOfDigits : Int -> Int

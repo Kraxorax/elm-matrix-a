@@ -1,4 +1,4 @@
-module Matrix.Neighbours exposing (MatrixTopology(..), neighbours)
+module Neighbours exposing (MatrixTopology(..), neighbours)
 
 {-|
 
@@ -19,7 +19,7 @@ module Matrix.Neighbours exposing (MatrixTopology(..), neighbours)
 
 -}
 
-import List as L exposing (..)
+import Array as A exposing (..)
 import Matrix exposing (..)
 
 
@@ -32,10 +32,10 @@ type MatrixTopology
     | StripVertical
 
 
-{-| Given topology and (x, y) returns list of
+{-| Given topology and (x, y) returns array of
 neighbours from given
 -}
-neighbours : MatrixTopology -> Int -> Int -> Matrix a -> List a
+neighbours : MatrixTopology -> Int -> Int -> Matrix a -> Array a
 neighbours mt =
     case mt of
         Plane ->
@@ -51,7 +51,7 @@ neighbours mt =
             neighboursOnHorizontalStrip
 
 
-neighboursOnTorus : Int -> Int -> Matrix a -> List a
+neighboursOnTorus : Int -> Int -> Matrix a -> Array a
 neighboursOnTorus x y m =
     let
         mw =
@@ -61,84 +61,48 @@ neighboursOnTorus x y m =
             height m
 
         r1 =
-            Maybe.withDefault [] (getRow (modulo (y - 1) mh) m)
+            Result.withDefault A.empty (getRow (modulo (y - 1) mh) m)
 
         r2 =
-            Maybe.withDefault [] (getRow y m)
+            Result.withDefault A.empty (getRow y m)
 
         r3 =
-            Maybe.withDefault [] (getRow (modulo (y + 1) mh) m)
+            Result.withDefault A.empty (getRow (modulo (y + 1) mh) m)
 
         start =
             modulo (x - 1) mw
 
         end =
+        
             modulo (x + 1) mw
     in
     unboundHorizontalSide start end r1
-        |> L.append (unboundHorizontalCenter start end r2)
-        |> L.append (unboundHorizontalSide start end r3)
+        |> A.append (unboundHorizontalCenter start end r2)
+        |> A.append (unboundHorizontalSide start end r3)
 
 
-neighboursOnPlane : Int -> Int -> Matrix a -> List a
+getBoundSideRows : Int -> Matrix a -> Array (Array a)
+getBoundSideRows y m =
+    if y == 0 then
+        A.repeat 1 (getRow 1 m |> Result.withDefault A.empty)
+
+    else if y == height m - 1 then
+        A.repeat 1 (getRow (y - 1) m |> Result.withDefault A.empty)
+
+    else
+        (getRow (y - 1) m :: [ getRow (y + 1) m ])
+            |> A.fromList
+            |> A.map (Result.withDefault A.empty)
+
+
+neighboursOnPlane : Int -> Int -> Matrix a -> Array a
 neighboursOnPlane x y m =
     let
-        startRow =
-            max (y - 1) 0
-
-        numToTakeRows =
-            if (y - 1) < 0 then
-                3 + (y - 1)
-
-            else
-                3
-
-        rows =
-            L.drop startRow m |> L.take numToTakeRows
-
-        start =
-            x - 1
-
-        end =
-            x + 1
-
-        numToTakeCells =
-            if start < 0 then
-                3 + start
-
-            else
-                3
-    in
-    rows
-        |> L.indexedMap
-            (\yc row ->
-                if startRow + yc == y then
-                    boundHorizontalCenter start end row
-
-                else
-                    boundHorizontalSide start numToTakeCells row
-            )
-        |> L.concat
-
-
-neighboursOnVerticalStrip : Int -> Int -> Matrix a -> List a
-neighboursOnVerticalStrip x y m =
-    let
-        mw =
-            width m
-
-        mh =
-            height m
+        rowCenter =
+            getRow y m |> Result.withDefault A.empty
 
         rowSides =
-            Maybe.withDefault [] (getRow (modulo (y - 1) mh) m)
-                :: Maybe.withDefault
-                    []
-                    (getRow (modulo (y + 1) mh) m)
-                :: []
-
-        rowCenter =
-            Maybe.withDefault [] (getRow y m)
+            getBoundSideRows y m
 
         start =
             x - 1
@@ -155,20 +119,67 @@ neighboursOnVerticalStrip x y m =
 
         sideNbrs =
             rowSides
-                |> L.map
+                |> A.map
                     (\row ->
                         boundHorizontalSide start numToTakeCells row
                     )
-                |> concat
+                |> flatten
+
+        centerNbrs =
+            boundHorizontalCenter start end rowCenter
+    in
+    A.append sideNbrs centerNbrs
+
+
+neighboursOnVerticalStrip : Int -> Int -> Matrix a -> Array a
+neighboursOnVerticalStrip x y m =
+    let
+        mw =
+            width m
+
+        mh =
+            height m
+
+        rowSides =
+            Result.withDefault A.empty (getRow (modulo (y - 1) mh) m)
+                :: Result.withDefault
+                    A.empty
+                    (getRow (modulo (y + 1) mh) m)
+                :: []
+                |> A.fromList
+
+        rowCenter =
+            Result.withDefault A.empty (getRow y m)
+
+        start =
+            x - 1
+
+        end =
+            x + 1
+
+        numToTakeCells =
+            if start < 0 then
+                3 + start
+
+            else
+                3
+
+        sideNbrs =
+            rowSides
+                |> A.map
+                    (\row ->
+                        boundHorizontalSide start numToTakeCells row
+                    )
+                |> flatten
 
         centerNbrs =
             boundHorizontalCenter start end rowCenter
     in
     sideNbrs
-        |> L.append centerNbrs
+        |> A.append centerNbrs
 
 
-neighboursOnHorizontalStrip : Int -> Int -> Matrix a -> List a
+neighboursOnHorizontalStrip : Int -> Int -> Matrix a -> Array a
 neighboursOnHorizontalStrip x y m =
     let
         mw =
@@ -178,11 +189,10 @@ neighboursOnHorizontalStrip x y m =
             height m
 
         rowCenter =
-            getRow y m |> Maybe.withDefault []
+            getRow y m |> Result.withDefault A.empty
 
         rowSides =
-            (getRow (y - 1) m :: [ getRow (y + 1) m ])
-                |> L.map (Maybe.withDefault [])
+            getBoundSideRows y m
 
         start =
             modulo (x - 1) mw
@@ -191,10 +201,10 @@ neighboursOnHorizontalStrip x y m =
             modulo (x + 1) mw
     in
     unboundHorizontalCenter start end rowCenter
-        |> L.append
+        |> A.append
             (rowSides
-                |> L.map (unboundHorizontalSide start end)
-                |> L.concat
+                |> A.map (unboundHorizontalSide start end)
+                |> flatten
             )
 
 
@@ -210,37 +220,38 @@ modulo a m =
         a
 
 
-unboundHorizontalSide : Int -> Int -> List a -> List a
+unboundHorizontalSide : Int -> Int -> Array a -> Array a
 unboundHorizontalSide start end l =
     if end < start then
-        L.take (end + 1) l
-            |> L.append
-                (L.drop start l
-                    |> L.take 3
-                )
+        A.slice 0 (end + 1) l
+            |> A.append
+                (A.slice start 3 l)
 
     else
-        L.drop start l |> L.take 3
+        A.slice start 3 l
 
 
-unboundHorizontalCenter : Int -> Int -> List a -> List a
+unboundHorizontalCenter : Int -> Int -> Array a -> Array a
 unboundHorizontalCenter start end l =
-    L.drop start l
-        |> L.take 1
-        |> L.append (L.drop end l |> L.take 1)
+    A.slice start 1 l
+        |> A.append (A.slice end 1 l)
 
 
-boundHorizontalCenter : Int -> Int -> List a -> List a
+boundHorizontalCenter : Int -> Int -> Array a -> Array a
 boundHorizontalCenter start end l =
     if start < 0 then
-        L.drop end l |> L.take 1
+        A.slice end (end + 1) l
 
     else
-        L.drop start l
-            |> L.take 1
-            |> L.append (L.drop end l |> L.take 1)
+        A.slice start (start + 1) l
+            |> A.append (A.slice end (end + 1) l)
 
 
-boundHorizontalSide : Int -> Int -> List a -> List a
+boundHorizontalSide : Int -> Int -> Array a -> Array a
 boundHorizontalSide start toTake l =
-    L.drop start l |> L.take toTake
+    A.slice (max 0 start) (start + toTake + 1) l
+
+
+flatten : Array (Array a) -> Array a
+flatten =
+    A.foldr A.append A.empty

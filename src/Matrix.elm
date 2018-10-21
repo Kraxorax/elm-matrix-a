@@ -2,7 +2,6 @@ module Matrix exposing
     ( Matrix
     , concatHorizontal
     , concatVertical
-    , empty
     , foldl
     , foldr
     , generate
@@ -34,13 +33,6 @@ import Array as A exposing (..)
 -}
 type alias Matrix a =
     Array (Array a)
-
-
-{-| Empty Matrix
--}
-empty : Matrix a
-empty =
-    A.empty
 
 
 {-| Creates Matrix of given width and height
