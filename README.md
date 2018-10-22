@@ -3,7 +3,7 @@
 `Matrix a` is data-structure of some width and height, containing elements of type `a` on `x` and `y` indexes. It's similar to a table, but rows and columns have no names, only indexes.
 It is not a mathematical matrix, as there are no operations between matrices.
 
-Main library exposes `Matrix a` creation, transversal, and some manipulation functions.
+Main library exposes `Matrix a` creation, traversal, and some manipulation functions.
 
 
 ## Creation
@@ -38,7 +38,7 @@ multiplicationTable = Matrix.generate 10 10 (\x y -> (x + 1) * (y + 1))
 --  10  20  30  40  50  60  70  80  90  100
 ```
 
-## Transversal
+## Traversal
 
 Matrix library exposes common transversal functions `map`, `indexedMap`, `foldr`, `foldl`.
 Some examples:

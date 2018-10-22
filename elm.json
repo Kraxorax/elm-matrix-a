@@ -1,28 +1,21 @@
 {
-    "type": "application",
-    "source-directories": [
-        "src",
-        "tests"
+    "type": "package",
+    "name": "Kraxorax/elm-matrix-a",
+    "summary": "Exposes 'Matrix a' creation, traversal, and some manipulation functions.",
+    "license": "BSD-3-Clause",
+    "version": "1.0.0",
+    "exposed-modules": [
+        "Matrix",
+        "Neighbours"
     ],
-    "elm-version": "0.19.0",
+    "source-directories": [
+        "src"
+    ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
-        "direct": {
-            "elm/browser": "1.0.0",
-            "elm/core": "1.0.0",
-            "elm/html": "1.0.0",
-            "elm-community/maybe-extra": "5.0.0",
-            "elm-explorations/test": "1.1.0"
-        },
-        "indirect": {
-            "elm/json": "1.0.0",
-            "elm/random": "1.0.0",
-            "elm/time": "1.0.0",
-            "elm/url": "1.0.0",
-            "elm/virtual-dom": "1.0.2"
-        }
+        "elm/core": "1.0.0 <= v < 2.0.0"
     },
     "test-dependencies": {
-        "direct": {},
-        "indirect": {}
+        "elm-explorations/test": "1.1.0 <= v < 2.0.0"
     }
 }

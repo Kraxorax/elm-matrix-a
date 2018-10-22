@@ -1,10 +1,23 @@
-module Neighbours exposing (MatrixTopology(..), neighbours)
+module Neighbours exposing
+    ( MatrixTopology(..)
+    , neighbours
+    )
 
-{-|
+{-| Module for getting neighbouring fields of some (x, y).
+Works with a few different matrix topologies.
+Topology specifies how neighbours are found across matrix edges.
 
-    Module for getting neighbouring fields of some (x, y).
-    Works with a few different matrix topologies.
-    Topology specifies how neighbours are found across edges.
+@docs MatrixTopology
+
+@docs neighbours
+
+-}
+
+import Array as A exposing (..)
+import Matrix exposing (..)
+
+
+{-| Possible topologies
 
     If we mark (0, 0) spot with X in 4x4 Matrix, N marks
     neighbours on given topology.
@@ -18,13 +31,6 @@ module Neighbours exposing (MatrixTopology(..), neighbours)
     - - - -     N N - N     - - - -         N N - -
 
 -}
-
-import Array as A exposing (..)
-import Matrix exposing (..)
-
-
-{-| Possible topologies
--}
 type MatrixTopology
     = Plane
     | Torus
@@ -32,8 +38,27 @@ type MatrixTopology
     | StripVertical
 
 
-{-| Given topology and (x, y) returns array of
-neighbours from given
+{-| Given a topology and (x, y) returns array of
+neighbours from given matrix.
+
+    myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+
+    neighbours Plane 0 0 myMatix
+    -- Array.fromList ["01","11","10"]
+
+    neighbours Torus 0 0 myMatix
+    -- Array.fromList ["33","03","13","31","01","11","10","30"]
+
+    neighbours stripHorizontal 0 0 myMatrix
+    -- Array.fromList ["31","01","11","10","30"]
+
+    neighbours StripVertical 0 0 myMatix
+    -- Array.fromList ["03","13","01","11","10"]
+
 -}
 neighbours : MatrixTopology -> Int -> Int -> Matrix a -> Array a
 neighbours mt =
@@ -162,15 +187,15 @@ unboundHorizontalSide x row =
             modulo (x - 1) mw
 
         end =
-            modulo (x - 1) mw
+            modulo (x + 1) mw
     in
     if end < start then
         A.slice 0 (end + 1) row
             |> A.append
-                (A.slice start 3 row)
+                (A.slice start (start + 3) row)
 
     else
-        A.slice start 3 row
+        A.slice start end row
 
 
 unboundHorizontalCenter : Int -> Array a -> Array a
@@ -185,8 +210,8 @@ unboundHorizontalCenter x row =
         end =
             modulo (x + 1) mw
     in
-    A.slice start 1 row
-        |> A.append (A.slice end 1 row)
+    A.slice start (start + 1) row
+        |> A.append (A.slice end (end + 1) row)
 
 
 boundHorizontalCenter : Int -> Array a -> Array a

@@ -1,28 +1,70 @@
 module Matrix exposing
     ( Matrix
+    , repeat
+    , generate
+    , map
+    , indexedMap
+    , foldr
+    , foldl
     , concatHorizontal
     , concatVertical
-    , foldl
-    , foldr
-    , generate
-    , get
-    , getColumn
-    , getRow
-    , height
-    , indexedMap
-    , map
-    , repeat
-    , tm
-    , toArray
     , width
+    , height
+    , get
+    , getRow
+    , getColumn
+    , toArray
     )
 
-{-|
+{-| Matrix (a) datastructure of certain width and height,
+containing elements of type (a) on x and y indexes.
 
-    Matrix (a) datastructure of certain width and height,
-    containing elements of type (a) on x and y indexes.
+Exposes Matrix creation, traversal, and some manipulation functions.
 
-    Exposes Matrix creation, transversal, and some manipulation functions.
+
+# Definition
+
+@docs Matrix
+
+
+# Creation
+
+@docs repeat
+
+@docs generate
+
+
+# Traversal
+
+@docs map
+
+@docs indexedMap
+
+@docs foldr
+
+@docs foldl
+
+
+# Manipulation
+
+@docs concatHorizontal
+
+@docs concatVertical
+
+
+# Utility
+
+@docs width
+
+@docs height
+
+@docs get
+
+@docs getRow
+
+@docs getColumn
+
+@docs toArray
 
 -}
 
@@ -36,7 +78,20 @@ type alias Matrix a =
 
 
 {-| Creates Matrix of given width and height
-by repeating sigle given value
+by repeating sigle given value.
+
+Call `repeat` with width and height, and a value to be repeated.
+
+
+    repeat : Int -> Int -> a -> Matrix a
+
+    myFourByThreeMatrixOfZeros =
+        repeat 4 3 0
+
+    -- 0 0 0 0
+    -- 0 0 0 0
+    -- 0 0 0 0
+
 -}
 repeat : Int -> Int -> a -> Matrix a
 repeat w h =
@@ -45,6 +100,27 @@ repeat w h =
 
 {-| Creates Matrix of given width and height
 by calling generator function with current x and y
+
+Call `generate` with width and height, and a _generator function_ `: Int -> Int -> a`.
+Generator function will be called for every element of matrix and will receive `x` and `y` of that element as params. It's return value will be put into matrix.
+
+
+    generate : Int -> Int -> (Int -> Int -> a) -> Matrix a
+
+    multiplicationTable =
+        generate 10 10 (\x y -> (x + 1) * (y + 1))
+
+    --  1   2   3   4   5   6   7   8   9   10
+    --  2   4   6   8   10  12  14  16  18  20
+    --  3   6   9   12  15  18  21  24  27  30
+    --  4   8   12  16  20  24  28  32  36  40
+    --  5   10  15  20  25  30  35  40  45  50
+    --  6   12  18  24  30  36  42  48  54  60
+    --  7   14  21  28  35  42  49  56  63  70
+    --  8   16  24  32  40  48  56  64  72  80
+    --  9   18  27  36  45  54  63  72  81  90
+    --  10  20  30  40  50  60  70  80  90  100
+
 -}
 generate : Int -> Int -> (Int -> Int -> a) -> Matrix a
 generate w h f =
@@ -58,6 +134,16 @@ generate w h f =
 
 
 {-| indexedMap will call your function with (x, y, a) params
+
+    myMatrix = repeat 3 3 2
+    -- 2 2 2
+    -- 2 2 2
+    -- 2 2 2
+    indexedMap (\x y element -> (x + y) * element |> String.fromInt) myMatrix
+    --  "0" "2" "4"
+    --  "2" "4" "6"
+    --  "4" "6" "8"
+
 -}
 indexedMap : (Int -> Int -> a -> b) -> Matrix a -> Matrix b
 indexedMap f =
@@ -70,6 +156,16 @@ indexedMap f =
 
 
 {-| Jup, it's a map
+
+    myMatrix = repeat 3 3 0
+    -- 0 0 0
+    -- 0 0 0
+    -- 0 0 0
+    map (String.fromInt) myMatrix
+    --  "0" "0" "0"
+    --  "0" "0" "0"
+    --  "0" "0" "0"
+
 -}
 map : (a -> b) -> Matrix a -> Matrix b
 map f =
@@ -82,6 +178,15 @@ map f =
 
 
 {-| Folding right
+
+    myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    foldr (++) "" myMatrix
+    --  "00102030011121310212223203132333"
+
 -}
 foldr : (a -> b -> b) -> b -> Matrix a -> b
 foldr f =
@@ -95,6 +200,15 @@ foldr f =
 
 
 {-| Folding left
+
+    myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    foldl (++) "" myMatrix
+    --  "33231303322212023121110130201000"
+
 -}
 foldl : (a -> b -> b) -> b -> Matrix a -> b
 foldl f =
@@ -108,6 +222,14 @@ foldl f =
 
 
 {-| Returns height of given Matrix
+
+    myMatrix = repeat 2 3 0
+    -- 0 0
+    -- 0 0
+    -- 0 0
+    height myMatrix
+    -- 3
+
 -}
 height : Matrix a -> Int
 height =
@@ -115,6 +237,14 @@ height =
 
 
 {-| Returns width of given Matrix
+
+    myMatrix = repeat 2 3 0
+    -- 0 0
+    -- 0 0
+    -- 0 0
+    width myMatrix
+    -- 2
+
 -}
 width : Matrix a -> Int
 width =
@@ -122,7 +252,18 @@ width =
 
 
 {-| Concatinates two Matrixes horizontally.
-Will return Nothing if Matrixes are not of same height.
+Will return REsult Err if Matrixes are not of same height.
+
+    matrixOne = repeat 2 2 1
+    -- 1 1
+    -- 1 1
+    matrixTwo = repeat 2 2 2
+    -- 2 2
+    -- 2 2
+    concatHorizontal matrixOne matrixTwo
+    -- 1 1 2 2
+    -- 1 1 2 2
+
 -}
 concatHorizontal : Matrix a -> Matrix a -> Result String (Matrix a)
 concatHorizontal m n =
@@ -141,7 +282,20 @@ concatHorizontal m n =
 
 
 {-| Concatinates two Matrixes vertically.
-Will return Nothing if Matrixes are not of same width.
+Will return Result Err if Matrixes are not of same width.
+
+    matrixOne = repeat 2 2 1
+    -- 1 1
+    -- 1 1
+    matrixTwo = repeat 2 2 2
+    -- 2 2
+    -- 2 2
+    concatVertical matrixOne matrixTwo
+    -- 1 1
+    -- 1 1
+    -- 2 2
+    -- 2 2
+
 -}
 concatVertical : Matrix a -> Matrix a -> Result String (Matrix a)
 concatVertical m n =
@@ -154,6 +308,15 @@ concatVertical m n =
 
 {-| Returns element at given x and y from Matrix.
 Nothing of indexes are out of bounds.
+
+    myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    get 1 2 myMatrix
+    -- "12"
+
 -}
 get : Int -> Int -> Matrix a -> Result String a
 get x y m =
@@ -166,7 +329,16 @@ get x y m =
 
 
 {-| Returns a row at given index as a list.
-Nothing if index is out of bounds.
+Result Err if index is out of bounds.
+
+    myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    getRow 1 myMatrix
+    --  Array.fromList ["01","11","21","31"]
+
 -}
 getRow : Int -> Matrix a -> Result String (Array a)
 getRow y m =
@@ -179,7 +351,18 @@ getRow y m =
 
 
 {-| Returns a column at given index as an array.
-Noting if index is out of bounds.
+Result Err if index is out of bounds.
+
+    myMatrix =
+        generate 4 4 (\x y -> String.fromInt x ++ String.fromInt y)
+
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    getColumn 1 myMatrix
+    --  Array.fromList ["10", "11", "12", "13"]
+
 -}
 getColumn : Int -> Matrix a -> Result String (Array a)
 getColumn x m =
@@ -187,10 +370,21 @@ getColumn x m =
         (\row c -> A.push (A.get x row) c)
         A.empty
         m
-        |> ama2maa
+        |> arrMb2ResArr
 
 
 {-| Returns all elements of Matrix in a single array.
+
+    myMatrix =
+        generate 4 4 (\x y -> String.fromInt x ++ String.fromInt y)
+
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "12"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+    toArray myMatrix
+    --  Array.fromList ["00", "10", "20", "30", "01", "11", "21", "31", "02", "12", "22", "32", "03", "13", "23", "33"]
+
 -}
 toArray : Matrix a -> Array a
 toArray =
@@ -198,25 +392,11 @@ toArray =
 
 
 
-{--
-        Primer
---}
+{- a helper -}
 
 
-tm : Matrix ( Int, Int, String )
-tm =
-    generate 5
-        10
-        (\x y ->
-            ( x
-            , y
-            , String.fromInt (x * y)
-            )
-        )
-
-
-ama2maa : Array (Maybe a) -> Result String (Array a)
-ama2maa =
+arrMb2ResArr : Array (Maybe a) -> Result String (Array a)
+arrMb2ResArr =
     A.foldr
         (\a r ->
             case r of

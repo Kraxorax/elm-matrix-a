@@ -20,10 +20,14 @@ testMatrix =
 
 haveSameElements : Array ( Int, Int ) -> Array ( Int, Int ) -> Bool
 haveSameElements a b =
-    A.foldr
-        (\ea x -> x && A.foldr (\eb y -> y || eb == ea) False b)
-        True
-        a
+    if A.length a /= A.length b then
+        False
+
+    else
+        A.foldr
+            (\ea x -> x && A.foldr (\eb y -> y || eb == ea) False b)
+            True
+            a
 
 
 planeNeighbours_00 =
@@ -48,51 +52,50 @@ stripVerticalNeighbours_00 =
 
 neighboursTestSuite : Test
 neighboursTestSuite =
-    only <|
-        describe "Matrix Neighbours"
-            [ test
-                "Plane 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Plane 0 0 testMatrix
-                    in
-                    Expect.true "P-0-0" (haveSameElements n planeNeighbours_00)
-                )
-            , test
-                "Plane 3 3"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Plane 3 3 testMatrix
-                    in
-                    Expect.true "P-3-3" (haveSameElements n planeNeighbours_33)
-                )
-            , test
-                "Torus 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Torus 0 0 testMatrix
-                    in
-                    Expect.true "0-0" (haveSameElements n torusNeighbours_00)
-                )
-            , test
-                "Horizontal strip 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.StripHorizontal 0 0 testMatrix
-                    in
-                    Expect.true "HS-0-0" (haveSameElements n stripHorizontalNeighbours_00)
-                )
-            , test
-                "Vertical strip 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.StripVertical 0 0 testMatrix
-                    in
-                    Expect.true "HS-0-0" (haveSameElements n stripVerticalNeighbours_00)
-                )
-            ]
+    describe "Matrix Neighbours"
+        [ test
+            "Plane 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Plane 0 0 testMatrix
+                in
+                Expect.true "P-0-0" (haveSameElements n planeNeighbours_00)
+            )
+        , test
+            "Plane 3 3"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Plane 3 3 testMatrix
+                in
+                Expect.true "P-3-3" (haveSameElements n planeNeighbours_33)
+            )
+        , test
+            "Torus 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Torus 0 0 testMatrix
+                in
+                Expect.true "0-0" (haveSameElements n torusNeighbours_00)
+            )
+        , test
+            "Horizontal strip 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.StripHorizontal 0 0 testMatrix
+                in
+                Expect.true "HS-0-0" (haveSameElements n stripHorizontalNeighbours_00)
+            )
+        , test
+            "Vertical strip 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.StripVertical 0 0 testMatrix
+                in
+                Expect.true "HS-0-0" (haveSameElements n stripVerticalNeighbours_00)
+            )
+        ]
