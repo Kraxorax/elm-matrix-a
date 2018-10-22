@@ -1,7 +1,7 @@
 # Matrix a
 
 `Matrix a` is data-structure of some width and height, containing elements of type `a` on `x` and `y` indexes. It's similar to a table, but rows and columns have no names, only indexes.
-It is not a mathematical matrix.
+It is not a mathematical matrix, as there are no operations between matrices.
 
 Main library exposes `Matrix a` creation, transversal, and some manipulation functions.
 
@@ -56,13 +56,26 @@ Matrix.map (String.fromInt) myMatrix_1
 
 #### indexedMap
 ```elm
-myMatrix_1 = Matrix.repeat 3 3 2
+myMatrix_2 = Matrix.repeat 3 3 2
 -- 2 2 2
 -- 2 2 2
 -- 2 2 2
-Matrix.indexedMap (\x y element -> (x + y) * element |> String.fromInt) myMatrix_1
+Matrix.indexedMap (\x y element -> (x + y) * element |> String.fromInt) myMatrix_2
 --  "0" "2" "4"
 --  "2" "4" "6"
 --  "4" "6" "8"
 ```
 
+#### folding
+```elm
+myMatrix_3 = Matrix.generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
+--  "00"    "10"    "20"    "30"
+--  "01"    "11"    "21"    "31"
+--  "02"    "12"    "22"    "32"
+--  "03"    "13"    "23"    "33"
+Matrix.foldr (++) "" myMatrix_3
+--  "00102030011121310212223203132333" 
+Matrix.foldl (++) "" myMatrix_3
+--  "33231303322212023121110130201000"
+
+```
