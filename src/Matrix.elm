@@ -24,10 +24,14 @@ Exposes Matrix creation, traversal, and some manipulation functions.
 
 # Definition
 
+Matrix is just nested array with a constraint that all sub-arrays must be of same length
+
 @docs Matrix
 
 
 # Creation
+
+Use `repeat` and `generate` to create your matrices.
 
 @docs repeat
 
@@ -35,6 +39,8 @@ Exposes Matrix creation, traversal, and some manipulation functions.
 
 
 # Traversal
+
+These are just standard traversal functions.
 
 @docs map
 
@@ -71,19 +77,18 @@ Exposes Matrix creation, traversal, and some manipulation functions.
 import Array as A exposing (..)
 
 
-{-| Matrix type alias
+{-| This is not a way to create a matrix, just a type alias.
+For creation use some of cretion functions.
 -}
 type alias Matrix a =
     Array (Array a)
 
 
 {-| Creates Matrix of given width and height
-by repeating sigle given value.
+by repeating single given value.
 
 Call `repeat` with width and height, and a value to be repeated.
 
-
-    repeat : Int -> Int -> a -> Matrix a
 
     myFourByThreeMatrixOfZeros =
         repeat 4 3 0
@@ -98,11 +103,10 @@ repeat w h =
     A.repeat w >> A.repeat h
 
 
-{-| Creates Matrix of given width and height
-by calling generator function with current x and y
+{-| Creates Matrix of given width and height by calling a generator function.
 
 Call `generate` with width and height, and a _generator function_ `: Int -> Int -> a`.
-Generator function will be called for every element of matrix and will receive `x` and `y` of that element as params. It's return value will be put into matrix.
+Generator function will be called for every element of matrix and will receive `x` and `y` of that element as params to return a value to be put into matrix.
 
 
     generate : Int -> Int -> (Int -> Int -> a) -> Matrix a
@@ -133,13 +137,15 @@ generate w h f =
         (A.initialize h identity)
 
 
-{-| indexedMap will call your function with (x, y, a) params
+{-| indexedMap will call your function with `x`, `y` and `a` as params
 
     myMatrix = repeat 3 3 2
     -- 2 2 2
     -- 2 2 2
     -- 2 2 2
-    indexedMap (\x y element -> (x + y) * element |> String.fromInt) myMatrix
+    indexedMap (\x y element ->
+        (x + y) * element |> String.fromInt)
+        myMatrix
     --  "0" "2" "4"
     --  "2" "4" "6"
     --  "4" "6" "8"
@@ -251,8 +257,8 @@ width =
     A.get 0 >> Maybe.withDefault A.empty >> A.length
 
 
-{-| Concatinates two Matrixes horizontally.
-Will return REsult Err if Matrixes are not of same height.
+{-| Concatinates two matrices horizontally.
+Will return Result Err if matrices are not of same height.
 
     matrixOne = repeat 2 2 1
     -- 1 1
@@ -281,8 +287,8 @@ concatHorizontal m n =
         Err "Matrix: matrices are of different height"
 
 
-{-| Concatinates two Matrixes vertically.
-Will return Result Err if Matrixes are not of same width.
+{-| Concatinates two matrices vertically.
+Will return Result Err if matrices are not of same width.
 
     matrixOne = repeat 2 2 1
     -- 1 1
@@ -306,7 +312,7 @@ concatVertical m n =
         Err "Matrix: matrices are of different width"
 
 
-{-| Returns element at given x and y from Matrix.
+{-| Returns element at given x and y from matrix.
 Nothing of indexes are out of bounds.
 
     myMatrix = generate 4 4 (\x y -> (String.fromInt x) ++ (String.fromInt y))
@@ -373,7 +379,7 @@ getColumn x m =
         |> arrMb2ResArr
 
 
-{-| Returns all elements of Matrix in a single array.
+{-| Returns all elements of matrix in a single array.
 
     myMatrix =
         generate 4 4 (\x y -> String.fromInt x ++ String.fromInt y)

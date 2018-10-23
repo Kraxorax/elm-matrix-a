@@ -195,7 +195,7 @@ unboundHorizontalSide x row =
                 (A.slice start (start + 3) row)
 
     else
-        A.slice start end row
+        A.slice start (end + 1) row
 
 
 unboundHorizontalCenter : Int -> Array a -> Array a
@@ -239,15 +239,8 @@ boundHorizontalSide x row =
 
         end =
             x + 1
-
-        toTake =
-            if start < 0 then
-                3 + start
-
-            else
-                3
     in
-    A.slice (max 0 start) (start + toTake + 1) row
+    A.slice (max 0 start) (end + 1) row
 
 
 getBoundSideRows : Int -> Matrix a -> Array (Array a)
