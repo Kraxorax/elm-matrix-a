@@ -71,6 +71,8 @@ These are just standard traversal functions.
 
 @docs getColumn
 
+@docs set
+
 @docs toArray
 
 -}
