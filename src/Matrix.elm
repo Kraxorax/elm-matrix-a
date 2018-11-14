@@ -105,7 +105,7 @@ Call `repeat` with width and height, and a value to be repeated.
 repeat : Int -> Int -> a -> Matrix a
 repeat w h a=
     Matrix w <|
-        (A.repeat w  (A.repeat h a))
+        (A.repeat h  (A.repeat w a))
 
 
 {-| Creates Matrix of given width and height by calling a generator function.
