@@ -13,6 +13,7 @@ module Matrix exposing
     , get
     , getRow
     , getColumn
+    , set
     , toArray
     )
 
@@ -69,6 +70,8 @@ These are just standard traversal functions.
 @docs getRow
 
 @docs getColumn
+
+@docs set
 
 @docs toArray
 
@@ -377,6 +380,31 @@ getColumn x m =
         A.empty
         m
         |> arrMb2ResArr
+
+
+
+
+{-| Set the element at a particular index. Returns an updated array. 
+If the index is out of range, the matrix is unaltered.
+
+    myMatrix =
+        generate 4 4 (\x y -> String.fromInt x ++ String.fromInt y)
+            |> set 1 2 "**"
+
+    --  "00"    "10"    "20"    "30"
+    --  "01"    "11"    "21"    "31"
+    --  "02"    "**"    "22"    "32"
+    --  "03"    "13"    "23"    "33"
+
+-}
+set : Int -> Int -> a -> Matrix a -> Matrix a
+set x y a m =
+    case A.get y m of
+        Just row ->
+            A.set y (A.set x a row) m
+
+        Nothing ->
+            m
 
 
 {-| Returns all elements of matrix in a single array.
