@@ -134,13 +134,15 @@ Generator function will be called for every element of matrix and will receive `
 generate : Int -> Int -> (Int -> Int -> a) -> Matrix a
 generate w h f =
     Matrix w <|
-        A.map
+        A.initialize
+            h
             (\y ->
-                A.map
+                A.initialize
+                    w
                     (\x -> f x y)
-                    (A.initialize w identity)
+                    
             )
-            (A.initialize h identity)
+            
 
 
 {-| indexedMap will call your function with `x`, `y` and `a` as params
