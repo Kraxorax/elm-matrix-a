@@ -25,7 +25,7 @@ Exposes Matrix creation, traversal, and some manipulation functions.
 
 # Definition
 
-Matrix is just nested array with a constraint that all sub-arrays must be of same length
+Matrix 
 
 @docs Matrix
 
@@ -79,12 +79,13 @@ These are just standard traversal functions.
 
 import Array as A exposing (..)
 
+type alias Width = Int
 
-{-| This is not a way to create a matrix, just a type alias.
-For creation use some of cretion functions.
+{-| A type representing a matrix. Internally, a matrix is just nested array 
+with a constraint that all sub-arrays must be of same length
 -}
-type alias Matrix a =
-    Array (Array a)
+type Matrix a =
+    Matrix Width (Array (Array a))
 
 
 {-| Creates Matrix of given width and height
@@ -102,8 +103,9 @@ Call `repeat` with width and height, and a value to be repeated.
 
 -}
 repeat : Int -> Int -> a -> Matrix a
-repeat w h =
-    A.repeat w >> A.repeat h
+repeat w h a=
+    Matrix w <|
+        (A.repeat h  (A.repeat w a))
 
 
 {-| Creates Matrix of given width and height by calling a generator function.
@@ -131,13 +133,16 @@ Generator function will be called for every element of matrix and will receive `
 -}
 generate : Int -> Int -> (Int -> Int -> a) -> Matrix a
 generate w h f =
-    A.map
-        (\y ->
-            A.map
-                (\x -> f x y)
-                (A.initialize w identity)
-        )
-        (A.initialize h identity)
+    Matrix w <|
+        A.initialize
+            h
+            (\y ->
+                A.initialize
+                    w
+                    (\x -> f x y)
+                    
+            )
+            
 
 
 {-| indexedMap will call your function with `x`, `y` and `a` as params
@@ -155,13 +160,15 @@ generate w h f =
 
 -}
 indexedMap : (Int -> Int -> a -> b) -> Matrix a -> Matrix b
-indexedMap f =
-    A.indexedMap
-        (\y row ->
-            A.indexedMap
-                (\x ele -> f x y ele)
-                row
-        )
+indexedMap f  (Matrix w m) =
+    Matrix w <|
+        A.indexedMap
+            (\y row ->
+                A.indexedMap
+                    (\x ele -> f x y ele)
+                    row
+            )
+            m
 
 
 {-| Jup, it's a map
@@ -177,13 +184,15 @@ indexedMap f =
 
 -}
 map : (a -> b) -> Matrix a -> Matrix b
-map f =
-    A.map
-        (\row ->
-            A.map
-                (\ele -> f ele)
-                row
-        )
+map f (Matrix w m) =
+    Matrix w <|
+        A.map
+            (\row ->
+                A.map
+                    (\ele -> f ele)
+                    row
+            )
+            m
 
 
 {-| Folding right
@@ -198,7 +207,7 @@ map f =
 
 -}
 foldr : (a -> b -> b) -> b -> Matrix a -> b
-foldr f =
+foldr f acc (Matrix _ m)=
     A.foldr
         (\row bc ->
             A.foldr
@@ -206,6 +215,8 @@ foldr f =
                 bc
                 row
         )
+        acc
+        m
 
 
 {-| Folding left
@@ -220,7 +231,7 @@ foldr f =
 
 -}
 foldl : (a -> b -> b) -> b -> Matrix a -> b
-foldl f =
+foldl f acc (Matrix _ m) =
     A.foldl
         (\row bc ->
             A.foldl
@@ -228,6 +239,8 @@ foldl f =
                 bc
                 row
         )
+        acc
+        m
 
 
 {-| Returns height of given Matrix
@@ -241,8 +254,8 @@ foldl f =
 
 -}
 height : Matrix a -> Int
-height =
-    A.length
+height (Matrix _ m) =
+    A.length m
 
 
 {-| Returns width of given Matrix
@@ -256,8 +269,8 @@ height =
 
 -}
 width : Matrix a -> Int
-width =
-    A.get 0 >> Maybe.withDefault A.empty >> A.length
+width (Matrix w _) =
+    w
 
 
 {-| Concatinates two matrices horizontally.
@@ -275,20 +288,20 @@ Will return Result Err if matrices are not of same height.
 
 -}
 concatHorizontal : Matrix a -> Matrix a -> Result String (Matrix a)
-concatHorizontal m n =
-    if height m == height n then
+concatHorizontal (Matrix w1 m) ((Matrix w2 n) as m2) =
+    if A.length m == A.length n then
         Ok <|
-            A.indexedMap
-                (\i mrow ->
-                    getRow i n
-                        |> Result.withDefault A.empty
-                        |> A.append mrow
-                )
-                m
+            Matrix (w1 + w2) <|
+                A.indexedMap
+                    (\i mrow ->
+                        getRow i m2
+                            |> Result.withDefault A.empty
+                            |> A.append mrow
+                    )
+                    m
 
     else
         Err "Matrix: matrices are of different height"
-
 
 {-| Concatinates two matrices vertically.
 Will return Result Err if matrices are not of same width.
@@ -307,9 +320,10 @@ Will return Result Err if matrices are not of same width.
 
 -}
 concatVertical : Matrix a -> Matrix a -> Result String (Matrix a)
-concatVertical m n =
-    if width m == width n then
-        Ok <| A.append m n
+concatVertical (Matrix w1 m) (Matrix w2 n) =
+    if w1 == w2 then
+        Ok <|
+            Matrix w1 (A.append m n)
 
     else
         Err "Matrix: matrices are of different width"
@@ -328,7 +342,7 @@ Nothing of indexes are out of bounds.
 
 -}
 get : Int -> Int -> Matrix a -> Result String a
-get x y m =
+get x y (Matrix _ m) =
     case m |> (A.get y >> Maybe.withDefault A.empty >> A.get x) of
         Nothing ->
             Err "Matrix: Location out of bounds"
@@ -350,7 +364,7 @@ Result Err if index is out of bounds.
 
 -}
 getRow : Int -> Matrix a -> Result String (Array a)
-getRow y m =
+getRow y (Matrix _ m) =
     case A.get y m of
         Just x ->
             Ok x
@@ -374,7 +388,7 @@ Result Err if index is out of bounds.
 
 -}
 getColumn : Int -> Matrix a -> Result String (Array a)
-getColumn x m =
+getColumn x (Matrix _ m) =
     A.foldr
         (\row c -> A.push (A.get x row) c)
         A.empty
@@ -398,13 +412,14 @@ If the index is out of range, the matrix is unaltered.
 
 -}
 set : Int -> Int -> a -> Matrix a -> Matrix a
-set x y a m =
-    case A.get y m of
-        Just row ->
-            A.set y (A.set x a row) m
+set x y a (Matrix w m) =
+    Matrix w <|
+        case A.get y m of
+            Just row ->
+                A.set y (A.set x a row) m
 
-        Nothing ->
-            m
+            Nothing ->
+                m
 
 
 {-| Returns all elements of matrix in a single array.
@@ -421,8 +436,8 @@ set x y a m =
 
 -}
 toArray : Matrix a -> Array a
-toArray =
-    A.foldr A.append A.empty
+toArray (Matrix _ m) =
+    A.foldr A.append A.empty m
 
 
 

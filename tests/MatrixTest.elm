@@ -94,15 +94,9 @@ suite =
                     m2 =
                         M.repeat w h 1
 
-                    mc =
-                        case concatHorizontal m1 m2 of
-                            Ok x ->
-                                x
-
-                            Err msg ->
-                                emptyMatrix
+                    mc = concatHorizontal m1 m2
                 in
-                Expect.equal (w * 2) (width mc)
+                Expect.equal (Ok <| w * 2) (Result.map width mc)
             )
         , fuzz2 rand1to10M
             rand1to10M
@@ -129,24 +123,15 @@ suite =
                     m2 =
                         M.repeat w h 1
 
-                    mc =
-                        case concatVertical m1 m2 of
-                            Ok x ->
-                                x
-
-                            Err msg ->
-                                emptyMatrix
+                    mc = concatVertical m1 m2
                 in
-                Expect.equal (h * 2) (height mc)
+                Expect.equal (Ok <| h * 2) (Result.map height mc)
             )
         ]
 
 
-{-| Empty Matrix
--}
-emptyMatrix : Matrix a
-emptyMatrix =
-    A.empty
+
+    
 
 
 numberOfDigits : Int -> Int

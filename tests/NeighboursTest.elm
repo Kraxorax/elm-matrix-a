@@ -81,78 +81,77 @@ arrayToString =
 
 neighboursTestSuite : Test
 neighboursTestSuite =
-    only <|
-        describe "Matrix Neighbours"
-            [ test
-                "Plane 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Plane 0 0 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n planeNeighbours_00)
-                )
-            , test
-                "Plane 1 1"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Plane 1 1 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n planeNeighbours_11)
-                )
-            , test
-                "Plane 3 3"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Plane 3 3 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n planeNeighbours_33)
-                )
-            , test
-                "Torus 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Torus 0 0 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n torusNeighbours_00)
-                )
-            , test
-                "Torus 1 1"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Torus 1 1 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n torusNeighbours_11)
-                )
-            , test
-                "Torus 3 3"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.Torus 3 3 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n torusNeighbours_33)
-                )
-            , test
-                "Horizontal strip 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.StripHorizontal 0 0 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n stripHorizontalNeighbours_00)
-                )
-            , test
-                "Vertical strip 0 0"
-                (\_ ->
-                    let
-                        n =
-                            N.neighbours N.StripVertical 0 0 testMatrix
-                    in
-                    Expect.true (arrayToString n) (haveSameElements n stripVerticalNeighbours_00)
-                )
-            ]
+    describe "Matrix Neighbours"
+        [ test
+            "Plane 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Plane 0 0 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n planeNeighbours_00)
+            )
+        , test
+            "Plane 1 1"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Plane 1 1 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n planeNeighbours_11)
+            )
+        , test
+            "Plane 3 3"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Plane 3 3 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n planeNeighbours_33)
+            )
+        , test
+            "Torus 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Torus 0 0 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n torusNeighbours_00)
+            )
+        , test
+            "Torus 1 1"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Torus 1 1 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n torusNeighbours_11)
+            )
+        , test
+            "Torus 3 3"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.Torus 3 3 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n torusNeighbours_33)
+            )
+        , test
+            "Horizontal strip 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.StripHorizontal 0 0 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n stripHorizontalNeighbours_00)
+            )
+        , test
+            "Vertical strip 0 0"
+            (\_ ->
+                let
+                    n =
+                        N.neighbours N.StripVertical 0 0 testMatrix
+                in
+                Expect.true (arrayToString n) (haveSameElements n stripVerticalNeighbours_00)
+            )
+        ]
