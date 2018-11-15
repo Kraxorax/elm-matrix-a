@@ -3,7 +3,7 @@
     "name": "Kraxorax/elm-matrix-a",
     "summary": "Exposes 'Matrix a' creation, traversal, and some manipulation functions.",
     "license": "BSD-3-Clause",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "Matrix",
         "Neighbours"
