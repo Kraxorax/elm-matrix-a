@@ -77,8 +77,7 @@ These are just standard traversal functions.
 
 -}
 
-import Array as A exposing (..)
-
+import Array as A
 type alias Width = Int
 
 {-| A type representing a matrix. Internally, a matrix is just nested array 
@@ -105,7 +104,7 @@ Call `repeat` with width and height, and a value to be repeated.
 repeat : Int -> Int -> a -> Matrix a
 repeat w h a=
     Matrix w <|
-        (A.repeat h  (A.repeat w a))
+        A.repeat h  (A.repeat w a)
 
 
 {-| Creates Matrix of given width and height by calling a generator function.

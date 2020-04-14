@@ -1,6 +1,6 @@
 # Matrix a
 
-`Matrix a` is data-structure of some width and height, containing elements of type `a` on `x` and `y` indexes. It's similar to a table, but rows and columns have no names.
+`Matrix a` is data-structure of some width and height, containing elements of type `a` on `x` and `y` indexes. It's similar to a table, but rows and columns have no names, only indexes.
 It is not a mathematical matrix, as there are no operations between matrices.
 
 Main library exposes `Matrix a` creation, traversal, and some manipulation functions.

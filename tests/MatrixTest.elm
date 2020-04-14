@@ -1,10 +1,8 @@
 module MatrixTest exposing (numberOfDigits, suite)
 
-import Array as A exposing (..)
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, intRange, list, string)
-import Matrix as M exposing (..)
-import Test exposing (..)
+import Array as A
+import Fuzz exposing (Fuzzer, intRange)
+import Matrix as M
 
 
 rand1to10M : Fuzzer Int
@@ -56,7 +54,7 @@ suite =
             rand1to10M
             rand1to10M
             "Generate and indexedMap"
-            (\w h a ->
+            (\w h _ ->
                 let
                     m =
                         M.generate w h (\x y -> ( x, y ))
@@ -94,9 +92,15 @@ suite =
                     m2 =
                         M.repeat w h 1
 
-                    mc = concatHorizontal m1 m2
+                    mc =
+                        case concatHorizontal m1 m2 of
+                            Ok x ->
+                                x
+
+                            Err _ ->
+                                emptyMatrix
                 in
-                Expect.equal (Ok <| w * 2) (Result.map width mc)
+                Expect.equal (w * 2) (width mc)
             )
         , fuzz2 rand1to10M
             rand1to10M
@@ -123,15 +127,24 @@ suite =
                     m2 =
                         M.repeat w h 1
 
-                    mc = concatVertical m1 m2
+                    mc =
+                        case concatVertical m1 m2 of
+                            Ok x ->
+                                x
+
+                            Err _ ->
+                                emptyMatrix
                 in
-                Expect.equal (Ok <| h * 2) (Result.map height mc)
+                Expect.equal (h * 2) (height mc)
             )
         ]
 
 
-
-    
+{-| Empty Matrix
+-}
+emptyMatrix : Matrix a
+emptyMatrix =
+    A.empty
 
 
 numberOfDigits : Int -> Int
