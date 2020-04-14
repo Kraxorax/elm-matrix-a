@@ -13,7 +13,8 @@ Topology specifies how neighbours are found across matrix edges.
 
 -}
 
-import Array as A
+import Array as A exposing (Array)
+import Matrix as M exposing (Matrix)
 
 
 {-| Possible topologies
@@ -82,7 +83,7 @@ neighboursOnTorus x y m =
             getUnboundSideRows y m
 
         rowCenter =
-            orEmpty (getRow y m)
+            orEmpty (M.getRow y m)
 
         sideNbrs =
             rowSides
@@ -102,7 +103,7 @@ neighboursOnPlane : Int -> Int -> Matrix a -> Array a
 neighboursOnPlane x y m =
     let
         rowCenter =
-            getRow y m |> orEmpty
+            M.getRow y m |> orEmpty
 
         rowSides =
             getBoundSideRows y m
@@ -128,7 +129,7 @@ neighboursOnVerticalStrip x y m =
             getUnboundSideRows y m
 
         rowCenter =
-            orEmpty (getRow y m)
+            orEmpty (M.getRow y m)
 
         sideNbrs =
             rowSides
@@ -148,7 +149,7 @@ neighboursOnHorizontalStrip : Int -> Int -> Matrix a -> Array a
 neighboursOnHorizontalStrip x y m =
     let
         rowCenter =
-            getRow y m |> orEmpty
+            M.getRow y m |> orEmpty
 
         rowSides =
             getBoundSideRows y m
@@ -249,13 +250,13 @@ boundHorizontalSide x row =
 getBoundSideRows : Int -> Matrix a -> Array (Array a)
 getBoundSideRows y m =
     if y == 0 then
-        A.repeat 1 (getRow 1 m |> orEmpty)
+        A.repeat 1 (M.getRow 1 m |> orEmpty)
 
-    else if y == height m - 1 then
-        A.repeat 1 (getRow (y - 1) m |> orEmpty)
+    else if y == M.height m - 1 then
+        A.repeat 1 (M.getRow (y - 1) m |> orEmpty)
 
     else
-        getRow (y - 1) m :: [ getRow (y + 1) m ]
+        M.getRow (y - 1) m :: [ M.getRow (y + 1) m ]
             |> A.fromList
             |> A.map orEmpty
 
@@ -264,12 +265,12 @@ getUnboundSideRows : Int -> Matrix a -> Array (Array a)
 getUnboundSideRows y m =
     let
         mh =
-            height m
+            M.height m
     in
-    orEmpty (getRow (modulo (y - 1) mh) m)
+    orEmpty (M.getRow (modulo (y - 1) mh) m)
         :: Result.withDefault
             A.empty
-            (getRow (modulo (y + 1) mh) m)
+            (M.getRow (modulo (y + 1) mh) m)
         :: []
         |> A.fromList
 
@@ -278,6 +279,6 @@ flatten : Array (Array a) -> Array a
 flatten =
     A.foldr A.append A.empty
 
-orEmpty: Result x a -> a
+orEmpty: Result x (Array a) -> Array a
 orEmpty =
     Result.withDefault A.empty

@@ -2,7 +2,7 @@ module MatrixTest exposing (numberOfDigits, suite)
 
 import Array as A
 import Fuzz exposing (Fuzzer, intRange)
-import Matrix as M
+import Matrix as M  exposing (Matrix)
 
 
 rand1to10M : Fuzzer Int

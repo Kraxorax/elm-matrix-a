@@ -1,8 +1,8 @@
 module NeighboursTest exposing (neighboursTestSuite)
 
-import Array as A
+import Array as A exposing (Array)
 import Expect
-import Matrix as M
+import Matrix as M exposing (Matrix)
 import Neighbours as N
 
 testMatrix : Matrix ( Int, Int )

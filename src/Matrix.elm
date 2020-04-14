@@ -77,7 +77,7 @@ These are just standard traversal functions.
 
 -}
 
-import Array as A
+import Array as A exposing (Array)
 type alias Width = Int
 
 {-| A type representing a matrix. Internally, a matrix is just nested array 
